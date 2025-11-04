@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>دنیای شما</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap');
+
+        * { box-sizing: border-box; margin:0; padding:0; }
+        body {
+            font-family: 'Vazirmatn', Tahoma, sans-serif;
+            margin: 0;
+            height: 100%;
+        }
+
+        /* استایل صفحه احراز هویت */
+        #auth-page {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1000;
+        }
+
+        .auth-container {
+            background: rgba(255,255,255,0.95);
+            padding: 50px 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 350px;
+            text-align: center;
+        }
+
+        h2 { margin-bottom: 20px; color:#333; font-weight:700; }
+        input { 
+            width:100%; 
+            padding:12px 15px; 
+            margin:12px 0; 
+            border-radius:8px; 
+            border:1px solid #ccc; 
+            font-size:16px; 
+            outline:none; 
+            transition:0.3s;
+            font-family: 'Vazirmatn', Tahoma, sans-serif;
+        }
+        input:focus { border-color:#667eea; box-shadow:0 0 8px rgba(102,126,234,0.3); }
+        button {
+            width:100%; 
+            padding:12px; 
+            margin-top:15px;
+            background-color:#667eea; 
+            color:white; 
+            font-size:16px; 
+            font-weight:600;
+            border:none; 
+            border-radius:8px; 
+            cursor:pointer; 
+            transition:0.3s;
+            font-family: 'Vazirmatn', Tahoma, sans-serif;
+        }
+        button:hover { background-color:#5a67d8; }
+        .error-msg { color:#e74c3c; margin-top:10px; font-weight:600; display:none; }
+        .switch { color:#667eea; margin-top:15px; cursor:pointer; display:block; }
+        .success-msg { color:#27ae60; margin-top:10px; font-weight:600; display:none; }
+
+        /* استایل صفحه اصلی */
+        #main-page {
+            display: none;
+            height: 100vh;
+            background-image: url('../img/565caead-bddc-4c59-9cfd-01323bf00adf.jpg');
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center center;
+            background-attachment: fixed;
+            color: #fff;
+        }
+
+        .center {
+            min-height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .card {
+            background: rgba(0,0,0,0.45);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+            max-width: 900px;
+            width: 100%;
+            position: relative;
+        }
+
+        .main-title { 
+            margin: 0 0 0.5rem 0; 
+            font-size: 2.2rem; 
+        }
+        .main-subtitle { 
+            margin: 0; 
+            opacity: 0.9; 
+            font-size: 1.2rem;
+        }
+
+        /* دکمه خروج کوچک */
+        .logout-btn {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: rgba(220, 53, 69, 0.85);
+    color: white;
+    border: none;
+    width: 60px;   /* از 40px بزرگ‌تر شد */
+    height: 30px;  /* از 25px کمی بلندتر شد */
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.3s;
+    font-family: 'Vazirmatn', Tahoma, sans-serif;
+    text-align: center;
+    padding: 0;
+}
+
+        .logout-btn:hover {
+            background: rgba(220, 53, 69, 1);
+        }
+
+        /* اطلاعات کاربر */
+        .user-info {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <!-- صفحه احراز هویت -->
+    <div id="auth-page">
+        <div class="auth-container" id="login-container">
+            <h2>ورود به دنیای شما</h2>
+            <input type="text" id="login-username" placeholder="نام کاربری">
+            <input type="password" id="login-password" placeholder="رمز عبور">
+            <button onclick="login()">ورود</button>
+            <div class="error-msg" id="login-error">نام کاربری یا رمز عبور اشتباه است!</div>
+            <span class="switch" onclick="showSignup()">ثبت نام نکرده‌ای؟ اینجا کلیک کن</span>
+        </div>
+
+        <div class="auth-container" id="signup-container" style="display:none;">
+            <h2>ثبت نام در دنیای شما</h2>
+            <input type="text" id="signup-username" placeholder="نام کاربری جدید">
+            <input type="password" id="signup-password" placeholder="رمز عبور جدید">
+            <button onclick="signup()">ثبت نام</button>
+            <div class="error-msg" id="signup-error">این نام کاربری قبلاً استفاده شده!</div>
+            <div class="success-msg" id="signup-success">ثبت نام موفقیت‌آمیز بود!</div>
+            <span class="switch" onclick="showLogin()">قبلاً ثبت نام کرده‌ای؟ ورود</span>
+        </div>
+    </div>
+
+    <!-- صفحه اصلی -->
+    <div id="main-page">
+        <div class="center">
+            <div class="card">
+                <button class="logout-btn" onclick="logout()">خروج</button>
+                <div class="user-info" id="userInfo"></div>
+                
+                <h1 class="main-title">خوش آمدی</h1>
+                <p class="main-subtitle">به دنیای خودت</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const USERS_KEY = 'website_users_v2';
+        const SESSION_KEY = 'website_session';
+
+        // تابع hash با salt
+        function hashPassword(password) {
+            const salt = "secure_salt_2024";
+            let hash = 0;
+            const str = password + salt;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return 'v2_' + Math.abs(hash).toString(36);
+        }
+
+        // دریافت کاربران
+        function getUsers() {
+            const stored = localStorage.getItem(USERS_KEY);
+            if (stored) {
+                return JSON.parse(stored);
+            }
+            return [
+                {username: "admin", password: hashPassword("admin123")}
+            ];
+        }
+
+        // ذخیره کاربران
+        function saveUsers(users) {
+            localStorage.setItem(USERS_KEY, JSON.stringify(users));
+        }
+
+        // ایجاد session
+        function createSession(username) {
+            const session = {
+                username: username,
+                loginTime: new Date().getTime(),
+                token: 'token_' + Math.random().toString(36).substr(2) + Date.now().toString(36)
+            };
+            localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+            return session;
+        }
+
+        // بررسی session
+        function validateSession() {
+            const sessionStr = localStorage.getItem(SESSION_KEY);
+            if (!sessionStr) return false;
+            
+            try {
+                const session = JSON.parse(sessionStr);
+                const now = new Date().getTime();
+                const SESSION_TIMEOUT = 24 * 60 * 60 * 1000;
+                
+                if (now - session.loginTime > SESSION_TIMEOUT) {
+                    localStorage.removeItem(SESSION_KEY);
+                    return false;
+                }
+                
+                return session;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        // نمایش صفحه مناسب بر اساس وضعیت لاگین
+        function checkAuthStatus() {
+            const session = validateSession();
+            
+            if (session) {
+                // کاربر لاگین کرده - نمایش صفحه اصلی
+                document.getElementById('auth-page').style.display = 'none';
+                document.getElementById('main-page').style.display = 'block';
+                document.getElementById('userInfo').textContent = `کاربر: ${session.username}`;
+            } else {
+                // کاربر لاگین نکرده - نمایش صفحه احراز هویت
+                document.getElementById('auth-page').style.display = 'flex';
+                document.getElementById('main-page').style.display = 'none';
+            }
+        }
+
+        // وقتی صفحه لود شد
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus();
+        });
+
+        // توابع صفحه احراز هویت
+        function showSignup(){
+            document.getElementById("login-error").style.display = "none";
+            document.getElementById("signup-error").style.display = "none";
+            document.getElementById("signup-success").style.display = "none";
+            
+            document.getElementById("login-container").style.display = "none";
+            document.getElementById("signup-container").style.display = "block";
+        }
+
+        function showLogin(){
+            document.getElementById("login-error").style.display = "none";
+            document.getElementById("signup-error").style.display = "none";
+            document.getElementById("signup-success").style.display = "none";
+            
+            document.getElementById("login-container").style.display = "block";
+            document.getElementById("signup-container").style.display = "none";
+        }
+
+        function signup(){
+            const username = document.getElementById("signup-username").value.trim();
+            const password = document.getElementById("signup-password").value;
+            const errorDiv = document.getElementById("signup-error");
+            const successDiv = document.getElementById("signup-success");
+
+            errorDiv.style.display = "none";
+            successDiv.style.display = "none";
+
+            if(!username || !password) {
+                errorDiv.textContent = "لطفاً همه فیلدها را پر کنید!";
+                errorDiv.style.display = "block";
+                return;
+            }
+
+            if(username.length < 3) {
+                errorDiv.textContent = "نام کاربری باید حداقل ۳ کاراکتر باشد!";
+                errorDiv.style.display = "block";
+                return;
+            }
+
+            if(password.length < 6) {
+                errorDiv.textContent = "رمز عبور باید حداقل ۶ کاراکتر باشد!";
+                errorDiv.style.display = "block";
+                return;
+            }
+
+            const users = getUsers();
+            
+            if(users.find(u => u.username === username)){
+                errorDiv.style.display = "block";
+                return;
+            }
+
+            users.push({
+                username: username, 
+                password: hashPassword(password)
+            });
+            saveUsers(users);
+            
+            successDiv.style.display = "block";
+            document.getElementById("signup-username").value = "";
+            document.getElementById("signup-password").value = "";
+            
+            setTimeout(() => {
+                showLogin();
+            }, 2000);
+        }
+
+        function login(){
+            const username = document.getElementById("login-username").value.trim();
+            const password = document.getElementById("login-password").value;
+            const errorDiv = document.getElementById("login-error");
+
+            errorDiv.style.display = "none";
+
+            if(!username || !password) {
+                errorDiv.textContent = "لطفاً همه فیلدها را پر کنید!";
+                errorDiv.style.display = "block";
+                return;
+            }
+
+            const users = getUsers();
+            const user = users.find(u => u.username === username && u.password === hashPassword(password));
+            
+            if(user){
+                createSession(username);
+                checkAuthStatus(); // نمایش صفحه اصلی
+            } else {
+                errorDiv.style.display = "block";
+            }
+        }
+
+        // تابع خروج
+        function logout() {
+            if (confirm('آیا مطمئن هستید که می‌خواهید خارج شوید؟')) {
+                localStorage.removeItem('website_session');
+                checkAuthStatus(); // بازگشت به صفحه احراز هویت
+                
+                // پاک کردن فیلدهای لاگین
+                document.getElementById("login-username").value = "";
+                document.getElementById("login-password").value = "";
+                document.getElementById("login-error").style.display = "none";
+            }
+        }
+
+        // قابلیت فشردن دکمه Enter
+        document.addEventListener('keypress', function(e) {
+            if(e.key === 'Enter') {
+                if(document.getElementById("login-container").style.display !== "none") {
+                    login();
+                } else if(document.getElementById("signup-container").style.display !== "none") {
+                    signup();
+                }
+            }
+        });
+
+        // محافظت در برابر بازگشت مرورگر
+        window.onpopstate = function() {
+            checkAuthStatus();
+        };
+    </script>
+</body>
+</html>
